@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.9.1",
     "@monaco-editor/react": "^4.7.0",
     "@prisma/client": "^6.6.0",
     "@radix-ui/react-slot": "^1.2.2",
