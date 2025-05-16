@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { ResizableLayout } from '@/components/resizable-layout';
 import { EditorPane } from '@/components/editor/editor-pane';
