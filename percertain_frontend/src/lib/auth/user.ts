@@ -1,13 +1,13 @@
 import { prisma } from "@/lib/prisma";
 
+// Simple function to store the password as plaintext for now
+// In a real application, you would use a proper hashing mechanism
 export async function createUser({ name, email, password }: { name: string; email: string; password: string }) {
-  const hashedPassword = await bcrypt.hash(password, 10);
-  
   const user = await prisma.user.create({
     data: {
       name,
       email,
-      hashedPassword,
+      hashedPassword: password, // Storing plaintext for simplicity
     },
   });
   

@@ -3,7 +3,6 @@ import GitHubProvider from "next-auth/providers/github";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 
-
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -23,5 +22,10 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "database",
   },
+  pages: {
+    signIn: "/auth/signin",
+  },
+  debug: process.env.NODE_ENV === "development",
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
