@@ -20,9 +20,12 @@ model User {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  accounts Account[]
-  sessions Session[]
-  projects Project[]
+  accounts        Account[]
+  sessions        Session[]
+  projects        Project[]
+  projectShares   ProjectShare[]
+  projectVersions ProjectVersion[]
+  deployments     Deployment[]
 }
 
 model Account {
@@ -64,42 +67,45 @@ model Project {
   id          String   @id @default(cuid())
   name        String
   description String?
-  content     String   @db.Text
-  published   Boolean  @default(false)
+  dslCode     String   @db.Text
+  isPublic    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   userId      String
 
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  versions  Version[]
-  shares    ProjectShare[]
-  favorites Favorite[]
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions    ProjectVersion[]
+  sharedWith  ProjectShare[]
+  favorites   ProjectFavorite[]
   deployments Deployment[]
 }
 
-model Version {
+model ProjectVersion {
   id        String   @id @default(cuid())
   name      String
-  content   String   @db.Text
+  dslCode   String   @db.Text
   createdAt DateTime @default(now())
   projectId String
+  userId    String
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ProjectShare {
-  id        String   @id @default(cuid())
-  projectId String
-  userId    String
-  role      String   @default("viewer") // viewer, editor, admin
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  projectId  String
+  userId     String
+  permission String   @default("VIEW") // VIEW, EDIT
+  createdAt  DateTime @default(now())
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, userId])
 }
 
-model Favorite {
+model ProjectFavorite {
   id        String   @id @default(cuid())
   projectId String
   userId    String
@@ -111,13 +117,17 @@ model Favorite {
 }
 
 model Deployment {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   projectId   String
-  url         String
-  environment String   @default("production") // development, preview, production
-  status      String   @default("pending") // pending, building, ready, failed
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  userId      String
+  url         String?
+  environment String    @default("production") // development, preview, production
+  status      String    @default("pending") // pending, building, ready, failed
+  code        String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -1,7 +1,14 @@
-import { getSession } from "@/lib/auth/session";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function middleware(request: NextRequest) {
-  const session = await getSession();
+export function middleware(request: NextRequest) {
+  // Edge-safe auth gate: only check for the presence of the NextAuth session
+  // cookie. Real session validation happens server-side (API routes / server
+  // components via getCurrentUser), because database-strategy sessions and
+  // Prisma cannot run in the Edge runtime.
+  const hasSession = Boolean(
+    request.cookies.get("next-auth.session-token")?.value ??
+      request.cookies.get("__Secure-next-auth.session-token")?.value
+  );
   const pathname = request.nextUrl.pathname;
 
   // Public paths that don't require authentication
@@ -14,17 +21,17 @@ export async function middleware(request: NextRequest) {
   ];
 
   // Check if the path starts with any of the public paths
-  const isPublicPath = publicPaths.some(path => 
+  const isPublicPath = publicPaths.some(path =>
     pathname === path || pathname.startsWith(`${path}/`)
   );
 
   // If authenticated and trying to access auth pages, redirect to projects
-  if (session && (pathname === "/auth/signin" || pathname === "/auth/signup")) {
+  if (hasSession && (pathname === "/auth/signin" || pathname === "/auth/signup")) {
     return NextResponse.redirect(new URL("/projects", request.url));
   }
 
   // If not authenticated and trying to access protected routes, redirect to signin
-  if (!session && !isPublicPath) {
+  if (!hasSession && !isPublicPath) {
     return NextResponse.redirect(new URL("/auth/signin", request.url));
   }
 

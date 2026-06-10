@@ -3,7 +3,8 @@ import { DeploymentPanel } from '@/components/deployment/deployment-panel';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 
-export default function DeploymentPage({ params }: { params: { id: string } }) {
+export default async function DeploymentPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -16,7 +17,7 @@ export default function DeploymentPage({ params }: { params: { id: string } }) {
           Once deployed, your app will be available at a unique URL that you can share with others.
         </p>
         
-        <DeploymentPanel projectId={params.id} />
+        <DeploymentPanel projectId={id} />
       </main>
       
       <Footer />

@@ -4,11 +4,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession();
-    const projectId = params.id;
+    const projectId = (await params).id;
     
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -130,11 +130,11 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession();
-    const projectId = params.id;
+    const projectId = (await params).id;
     const url = new URL(request.url);
     const userId = url.searchParams.get('userId');
     

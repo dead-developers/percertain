@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -54,7 +54,8 @@ interface ProjectDetails {
   };
 }
 
-export default function ProjectPage({ params }: { params: { id: string } }) {
+export default function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
   const [project, setProject] = useState<ProjectDetails | null>(null);
   const [dslCode, setDslCode] = useState('');
@@ -86,7 +87,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     fetchProject();
-  }, [params.id]);
+  }, [id]);
 
   useEffect(() => {
     if (dslCode) {
@@ -97,7 +98,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
   const fetchProject = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/projects/${params.id}`);
+      const response = await fetch(`/api/projects/${id}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch project');
@@ -224,7 +225,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
     try {
       setSaveStatus('Saving...');
       
-      const response = await fetch(`/api/projects/${params.id}`, {
+      const response = await fetch(`/api/projects/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -254,7 +255,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
       
       if (!versionName) return;
       
-      const response = await fetch(`/api/projects/${params.id}`, {
+      const response = await fetch(`/api/projects/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -292,7 +293,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         return;
       }
       
-      const response = await fetch(`/api/projects/${params.id}/share`, {
+      const response = await fetch(`/api/projects/${id}/share`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -318,7 +319,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
 
   const handleRemoveShare = async (userId: string) => {
     try {
-      const response = await fetch(`/api/projects/${params.id}/share?userId=${userId}`, {
+      const response = await fetch(`/api/projects/${id}/share?userId=${userId}`, {
         method: 'DELETE'
       });
       
@@ -335,7 +336,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
 
   const handleTogglePublic = async () => {
     try {
-      const response = await fetch(`/api/projects/${params.id}`, {
+      const response = await fetch(`/api/projects/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

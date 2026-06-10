@@ -67,7 +67,9 @@ class ModExecutorImpl implements ModExecutor {
     if (this.cache.size >= this.maxCacheSize) {
       // Remove oldest entry
       const oldestKey = this.cache.keys().next().value;
-      this.cache.delete(oldestKey);
+      if (oldestKey !== undefined) {
+        this.cache.delete(oldestKey);
+      }
     }
     
     this.cache.set(key, {
